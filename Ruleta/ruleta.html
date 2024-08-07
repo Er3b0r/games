@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruleta de la Fortuna</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            flex-direction: column; /* Asegura que los elementos estén en columna */
+            padding: 20px; /* Añadido padding para evitar desbordamiento */
+            box-sizing: border-box; /* Incluye padding en el tamaño total del contenedor */
+        }
+        #rules {
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            text-align: center; /* Centra el texto en dispositivos móviles */
+        }
+        #wheel-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative; /* Necesario para posicionar el puntero sobre la ruleta */
+        }
+        #wheel {
+            width: 100%;
+            max-width: 400px; /* Aumentado para escritorio */
+            height: auto;
+            aspect-ratio: 1 / 1;
+            border-radius: 50%;
+            position: relative; /* Asegura que el puntero esté posicionado relativamente a la rueda */
+            background: conic-gradient(
+                red 0% 10%, 
+                black 10% 20%, 
+                red 20% 30%, 
+                black 30% 40%, 
+                green 40% 50%, 
+                red 50% 60%, 
+                black 60% 70%, 
+                red 70% 80%, 
+                black 80% 90%, 
+                green 90% 100%
+            );
+        }
+        #pointer {
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 20px solid red; /* Cambiado a border-bottom para que apunte hacia abajo */
+            position: absolute;
+            top: -25px; /* Posición en la parte superior */
+            left: 50%;
+            transform: translateX(-50%) rotate(180deg); /* Girar el puntero para que apunte hacia abajo */
+            z-index: 10; /* Asegura que el puntero esté encima de la ruleta */
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #result {
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 18px;
+        }
+
+        /* Media Queries para Responsividad */
+        @media (max-width: 600px) {
+            body {
+                flex-direction: column;
+            }
+            #rules {
+                width: 100%;
+                max-width: none;
+                margin-bottom: 20px;
+                padding: 10px;
+                font-size: 14px;
+                text-align: center; /* Centra el texto */
+            }
+            #wheel-container {
+                margin-top: 30px; /* Aumenta el margen superior para separar de las normas */
+            }
+            #wheel {
+                max-width: 100%; /* Ajusta el tamaño de la ruleta para pantallas pequeñas */
+            }
+            button {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+            #result {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="rules">
+        <h2>Normas del Juego</h2>
+        <strong>Verde:</strong> Tira otra vez.<br>
+        <strong>Negro:</strong> Has perdido.<br>
+        <strong>Rojo:</strong> Premio.<br>
+    </div>
+    <div id="wheel-container">
+        <div id="wheel"></div>
+        <div id="pointer"></div> <!-- El puntero está fuera de #wheel -->
+        <button onclick="spinWheel()">Girar Ruleta</button>
+        <div id="result"></div>
+    </div>
+    <audio id="spinMusic" src="Ruleta.mp3" preload="auto"></audio> <!-- Música de fondo -->
+    <script>
+        const segments = [
+            "Rojo", "Negro", "Rojo", "Negro", "Verde",
+            "Rojo", "Negro", "Rojo", "Negro", "Verde"
+        ];
+
+        function spinWheel() {
+            const wheel = document.getElementById('wheel');
+            const result = document.getElementById('result');
+            result.textContent = '';
+
+            // Reproduce la música cuando se hace clic en el botón
+            playSpinMusic();
+
+            // Genera un ángulo aleatorio para la rotación de la rueda
+            const randomDegree = Math.floor(Math.random() * 360) + 360 * 5; // Más giros para mayor realismo
+
+            // Reiniciar la transición de la rueda
+            wheel.style.transition = 'none';
+            wheel.style.transform = 'rotate(0deg)';
+            void wheel.offsetWidth; // Forzar el reflujo para reiniciar la animación
+            wheel.style.transition = 'transform 4s ease-out';
+            wheel.style.transform = `rotate(${randomDegree}deg)`;
+
+            // Calcula el premio después de que la ruleta deje de girar
+            setTimeout(() => {
+                const finalDegree = randomDegree % 360; // Ángulo final de la ruleta
+                const segmentAngle = 360 / segments.length; // Ángulo de cada segmento
+
+                // Ajustar el ángulo para el puntero
+                const adjustedDegree = (360 - finalDegree) % 360;
+
+                // Determina el índice del segmento basado en el ángulo ajustado
+                const selectedIndex = Math.floor(adjustedDegree / segmentAngle);
+                const selectedSegment = segments[selectedIndex];
+
+                // Muestra el resultado basado en el color seleccionado
+                switch (selectedSegment) {
+                    case "Verde":
+                        result.textContent = "¡Tira otra vez!";
+                        break;
+                    case "Negro":
+                        result.textContent = "¡Has perdido!";
+                        break;
+                    case "Rojo":
+                        result.textContent = "¡Premio!";
+                        break;
+                }
+
+                // Detiene la música una vez que la ruleta se detiene
+                stopSpinMusic();
+            }, 4000); // Espera que la animación termine
+        }
+
+        function playSpinMusic() {
+            const music = document.getElementById('spinMusic');
+            music.loop = false; // No repetir la música
+            music.play();
+        }
+
+        function stopSpinMusic() {
+            const music = document.getElementById('spinMusic');
+            music.pause();
+            music.currentTime = 0; // Reinicia la música al principio
+        }
+    </script>
+</body>
+</html>

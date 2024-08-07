@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juegos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            margin-bottom: 50px;
+        }
+        .games {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+        }
+        .game {
+            text-align: center;
+        }
+        .game img {
+            width: 200px;
+            height: auto;
+            cursor: pointer;
+            border: 2px solid #000;
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+        .game img:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Elige un Juego</h1>
+    <div class="games">
+        <div class="game">
+            <a href="/Coches/coches.html">
+                <img src="images/cars.jpg" alt="Carrera de Coches">
+            </a>
+            <p>Carrera de Coches</p>
+        </div>
+        <div class="game">
+            <a href="/Ruleta/ruleta.html">
+                <img src="images/ruleta.jpg" alt="Ruleta de la Fortuna">
+            </a>
+            <p>Ruleta de la Fortuna</p>
+        </div>
+    </div>
+</body>
+</html>

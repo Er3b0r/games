@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrera Virtual</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            box-sizing: border-box;
+        }
+        .track {
+            width: 90%;
+            max-width: 600px;
+            height: 60vh;
+            border: 1px solid #000;
+            position: relative;
+            margin-bottom: 20px;
+            background-color: #ddd;
+            overflow: hidden; /* Para asegurarse de que los coches no salgan de la pista */
+        }
+        .car {
+            width: 50px; /* Ajusta el tamaño del coche */
+            height: auto;
+            position: absolute;
+            bottom: 0;
+        }
+        .finish-line {
+            position: absolute;
+            width: 100%;
+            border-top: 8px solid red; /* Grosor aumentado de la línea de meta */
+            top: 0; /* Línea de meta en la parte superior de la pista */
+            left: 0;
+            z-index: 5; /* Asegura que la línea de meta esté encima de los coches */
+        }
+        #result {
+            font-weight: bold;
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        #countdown {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 600px) {
+            .track {
+                height: 70vh;
+            }
+            .car {
+                width: 60px; /* Ajusta el tamaño del coche en dispositivos móviles */
+            }
+            #result {
+                font-size: 1em;
+            }
+            button {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="countdown">5</div> <!-- Elemento para mostrar la cuenta regresiva -->
+    <div class="track">
+        <div class="finish-line"></div> <!-- Línea de meta añadida -->
+        <img src="car1.png" id="car1" class="car" style="left: 0;">
+        <img src="car2.png" id="car2" class="car" style="left: 20%;">
+        <img src="car3.png" id="car3" class="car" style="left: 40%;">
+        <img src="car4.png" id="car4" class="car" style="left: 60%;">
+        <img src="car5.png" id="car5" class="car" style="left: 80%;">
+    </div>
+    <button onclick="startRace()">Iniciar Carrera</button>
+    <div id="result"></div>
+    <audio id="raceMusic" src="soyFrancescoEdit.mp3" preload="auto"></audio> <!-- Música de fondo -->
+    <script>
+        function startRace() {
+            const countdownElement = document.getElementById('countdown');
+            let countdown = 5;
+
+            // Mostrar cuenta regresiva
+            const countdownInterval = setInterval(() => {
+                countdownElement.textContent = countdown;
+                countdown--;
+                if (countdown < 0) {
+                    clearInterval(countdownInterval);
+                    countdownElement.style.display = 'none'; // Ocultar el contador
+                    runRace(); // Iniciar la carrera
+                }
+            }, 1000);
+            
+            // Reproducir música al hacer clic en el botón
+            playRaceMusic();
+        }
+
+        function playRaceMusic() {
+            const music = document.getElementById('raceMusic');
+            music.loop = true; // Reproducir música en bucle
+            music.play();
+        }
+
+        function runRace() {
+            const cars = [];
+            for (let i = 1; i <= 5; i++) {
+                cars.push(document.getElementById(`car${i}`));
+            }
+            const result = document.getElementById('result');
+            result.textContent = '';
+
+            const carPositions = Array(5).fill(0);
+            const trackHeight = document.querySelector('.track').clientHeight;
+            const finishLineTop = 0; // La posición Y de la línea de meta (arriba de la pista)
+
+            let raceOngoing = true; // Variable para controlar el estado de la carrera
+
+            const raceInterval = setInterval(() => {
+                if (!raceOngoing) return; // Detiene el intervalo si la carrera ha terminado
+
+                cars.forEach((car, index) => {
+                    const moveAmount = Math.random() * 30; // Ajusta la velocidad (puedes incrementar si es necesario)
+                    carPositions[index] += moveAmount; // Mueve los coches hacia arriba
+                    car.style.bottom = carPositions[index] + 'px'; // Aplica la nueva posición
+
+                    // Verifica si el coche ha cruzado la línea de meta
+                    const carTop = trackHeight - carPositions[index] - car.clientHeight; // Parte superior del coche
+                    if (carTop <= finishLineTop) {
+                        clearInterval(raceInterval);
+                        result.textContent = `¡Coche ${index + 1} Gana!`;
+                        raceOngoing = false; // Detiene la carrera
+                        stopRaceMusic(); // Detener la música
+                    }
+                });
+            }, 100);
+        }
+
+        function stopRaceMusic() {
+            const music = document.getElementById('raceMusic');
+            music.pause();
+            music.currentTime = 0; // Reinicia la música al principio
+        }
+    </script>
+</body>
+</html>
