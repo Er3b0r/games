@@ -22,20 +22,44 @@
             display: flex;
             justify-content: center;
             gap: 50px;
+            flex-wrap: wrap;
         }
         .game {
             text-align: center;
+            flex: 1;
+            min-width: 200px;
+            max-width: 300px;
         }
         .game img {
-            width: 200px;
+            width: 100%;
             height: auto;
-            cursor: pointer;
+            max-width: 300px;
             border: 2px solid #000;
             border-radius: 10px;
+            cursor: pointer;
             transition: transform 0.3s;
         }
         .game img:hover {
             transform: scale(1.1);
+        }
+        .game p {
+            margin-top: 10px;
+            font-size: 18px;
+        }
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 24px;
+                margin-bottom: 30px;
+            }
+            .games {
+                gap: 20px;
+            }
+            .game img {
+                max-width: 200px;
+            }
+            .game p {
+                font-size: 16px;
+            }
         }
     </style>
 </head>
